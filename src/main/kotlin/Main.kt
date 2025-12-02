@@ -1,9 +1,8 @@
 package xyz.ventosa
 
-import Day1
+import Day2
 
 fun main() {
-    val day1 = Day1()
-    day1.part1()
-    day1.part2()
+    val day = Day2()
+    day.part1and2()
 }
