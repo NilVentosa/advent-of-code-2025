@@ -1,9 +1,9 @@
 package xyz.ventosa
 
-import Day3
+import Day4
 
 fun main() {
-    val day = Day3()
+    val day = Day4()
     day.part1()
     day.part2()
 }
