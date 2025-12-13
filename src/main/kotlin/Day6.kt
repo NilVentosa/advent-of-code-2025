@@ -4,7 +4,7 @@ class Day6 {
 
     fun part1() {
         var result = 0L
-        var parts = input.lines().map { line -> line.split(" ").filter { it.isNotEmpty() } }
+        val parts = input.lines().map { line -> line.split(" ").filter { it.isNotEmpty() } }
         for (i in 0 until parts[0].size) {
             var thing = mutableListOf<String>()
             for (line in parts) {
@@ -26,62 +26,53 @@ class Day6 {
     }
 
     fun part2() {
-        var result = 0L
-        var parts = testInput.lines().map { line -> line.split("") }
-        var currentNumber = ""
-        var currentOperation = "*"
-        for (i in 0 until parts[0].size) {
-            for (line in parts) {
-                if (line[i] == "+" || line[i] == "*") {
-                    currentOperation = line[i]
-                    currentNumber = ""
-                    break
-                } else if (line[i] != "" && line[i] != " ") {
-                    currentNumber += line[i]
+        val lines = input.lines().map { line -> line.split("") }
+        val largest = lines.maxOf { it.size }
+        var currentBlock = Block(Operation.SUM, mutableListOf())
+        val blocks = mutableListOf<Block>()
+        for (i in 0 until largest) {
+            var current = ""
+            for (line in lines) {
+                if (i < line.size) {
+                    current += line[i]
                 }
             }
+            if (current.trim().isEmpty()) {
+                blocks.add(currentBlock)
+                currentBlock = Block(Operation.SUM, mutableListOf())
+            } else if (isNumeric(current)) {
+                currentBlock.numbers.add(current.trim().toLong())
+            } else if (current.endsWith("*")) {
+                currentBlock.operation = Operation.MULTIPLY
+                currentBlock.numbers.add(current.removeSuffix("*").trim().toLong())
+            } else if (current.endsWith("+")) {
+                currentBlock.numbers.add(current.removeSuffix("+").trim().toLong())
+            }
         }
-        println(result)
-    }
-
-    fun calculatePart2(operation: MutableList<String>): Long {
         var result = 0L
-        result += when (operation.last()) {
-            "+" -> sumPart2(operation. subList(0, operation.size - 1))
-            "*" -> multiplyPart2(operation.subList(0, operation.size - 1))
-            else -> throw IllegalArgumentException("Invalid operation: ${operation.last()}")
+        for (block in blocks) {
+            if (block.operation == Operation.SUM) {
+                result += block.numbers.sum()
+            } else {
+                val multiplied = block.numbers.fold(1L) { accumulator, number ->
+                    accumulator * number
+                }
+                result += multiplied
+            }
         }
-        return result
+
+        println(result)
     }
 
-    fun sumPart2(operation: MutableList<String>): Long {
-        var result = 0L
-        var paddedNumbers = operation.map { it.padStart(10, '0')}
-        for (i in 0 until paddedNumbers[0].length - 1) {
-            var partial = ""
-            for (number in paddedNumbers) {
-                partial += number[i]
-            }
-            result += partial.toLong()
-        }
-        println(result)
-        return result
+    data class Block(var operation: Operation, val numbers: MutableList<Long>) { }
+
+    enum class Operation {
+        SUM,
+        MULTIPLY
     }
 
-    fun multiplyPart2(operation: MutableList<String>): Long {
-        var result = 1L
-        var paddedNumbers = operation.map { it.padStart(10, '0')}
-        for (i in 0 until paddedNumbers[0].length - 1) {
-            var partial = ""
-            for (number in paddedNumbers) {
-                partial += number[i]
-            }
-            if (partial.toLong() > 0) {
-                result *= partial.toLong()
-            }
-        }
-        println(result)
-        return result
+    fun isNumeric(input: String): Boolean {
+        return input.trim().toDoubleOrNull() != null
     }
 
 }
